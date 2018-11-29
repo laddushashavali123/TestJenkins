@@ -27,29 +27,29 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
- * Test with Edge.
+ * Test with PhantomJS.
  *
  * @author Boni Garcia (boni.gg@gmail.com)
  * @since 1.0.0
  */
-public class EdgeTest {
+public class PhatomJsTest {
 
     private WebDriver driver;
 
     @BeforeClass
     public static void setupClass() {
-        WebDriverManager.edgedriver().setup();
+        WebDriverManager.phantomjs().setup();
     }
 
     @Before
     public void setupTest() {
-        driver = new EdgeDriver();
+        driver = new PhantomJSDriver();
     }
 
     @After
@@ -64,6 +64,7 @@ public class EdgeTest {
         // Your test code here. For example:
         WebDriverWait wait = new WebDriverWait(driver, 30);
         driver.get("https://en.wikipedia.org/wiki/Main_Page");
+
         By searchInput = By.id("searchInput");
         wait.until(presenceOfElementLocated(searchInput));
         driver.findElement(searchInput).sendKeys("Software");

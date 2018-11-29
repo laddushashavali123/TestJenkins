@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2016 Boni Garcia (http://bonigarcia.github.io/)
+ * (C) Copyright 2017 Boni Garcia (http://bonigarcia.github.io/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,40 +17,46 @@
 
 package io.github.bonigarcia.wdm.test;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
-import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
- * Test with Chrome.
+ * WebRTC test with Chrome.
  *
  * @author Boni Garcia (boni.gg@gmail.com)
  * @since 1.0.0
  */
-public class ChromeTest {
+public class WebRtcChromeTest {
 
     private WebDriver driver;
 
     @BeforeClass
     public static void setupClass() {
-
         WebDriverManager.chromedriver().setup();
     }
 
     @Before
     public void setupTest() {
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+
+        // This flag avoids to grant the user media
+        options.addArguments("--use-fake-ui-for-media-stream");
+
+        // This flag fakes user media with synthetic video (green with spinner
+        // and timer)
+        options.addArguments("--use-fake-device-for-media-stream");
+
+        driver = new ChromeDriver(options);
     }
 
     @After
@@ -61,19 +67,20 @@ public class ChromeTest {
     }
 
     @Test
-    public void test() {
-        // Your test code here. For example:
-        WebDriverWait wait = new WebDriverWait(driver, 30);
-        driver.get("https://en.wikipedia.org/wiki/Main_Page");
-        By searchInput = By.id("searchInput");
-        wait.until(presenceOfElementLocated(searchInput));
-        driver.findElement(searchInput).sendKeys("Software");
-        By searchButton = By.id("searchButton");
-        wait.until(elementToBeClickable(searchButton));
-        driver.findElement(searchButton).click();
+    public void test() throws InterruptedException {
+        // Test data
+        int timeout = 30;
+        String sutUrl = "https://webrtc.github.io/samples/src/content/devices/input-output/";
 
-        wait.until(textToBePresentInElementLocated(By.tagName("body"),
-                "Computer software"));
+        // Implicit timeout
+        driver.manage().timeouts().implicitlyWait(timeout, SECONDS);
+        driver.manage().timeouts().implicitlyWait(timeout, SECONDS);
+
+        // Open page
+        driver.get(sutUrl);
+
+        // Wait 5 seconds
+        sleep(5000);
     }
 
 }

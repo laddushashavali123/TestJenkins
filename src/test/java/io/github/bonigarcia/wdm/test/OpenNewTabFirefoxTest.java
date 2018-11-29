@@ -17,15 +17,20 @@
 
 package io.github.bonigarcia.wdm.test;
 
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
-import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
+import static java.awt.event.KeyEvent.VK_CONTROL;
+import static java.awt.event.KeyEvent.VK_META;
+import static java.awt.event.KeyEvent.VK_T;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_MAC;
+import static org.openqa.selenium.support.ui.ExpectedConditions.numberOfWindowsToBe;
+
+import java.awt.Robot;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -33,12 +38,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 /**
- * Test with Firefox.
+ * Example which opens a new Tab with Java Robot using Firefox as browser.
  *
  * @author Boni Garcia (boni.gg@gmail.com)
  * @since 1.0.0
  */
-public class FirefoxTest {
+public class OpenNewTabFirefoxTest {
 
     private WebDriver driver;
 
@@ -60,20 +65,29 @@ public class FirefoxTest {
     }
 
     @Test
-    public void test() {
-        // Your test code here. For example:
-        WebDriverWait wait = new WebDriverWait(driver, 30);
-        driver.get("https://en.wikipedia.org/wiki/Main_Page");
+    public void test() throws Exception {
+        // Open URL in default tab
+        driver.get("https://wikipedia.org/");
 
-        By searchInput = By.id("searchInput");
-        wait.until(presenceOfElementLocated(searchInput));
-        driver.findElement(searchInput).sendKeys("Software");
-        By searchButton = By.id("searchButton");
-        wait.until(elementToBeClickable(searchButton));
-        driver.findElement(searchButton).click();
+        // If Mac OS X, the key combination is CMD+t, otherwise is CONTROL+t
+        int vkControl = IS_OS_MAC ? VK_META : VK_CONTROL;
+        Robot robot = new Robot();
+        robot.keyPress(vkControl);
+        robot.keyPress(VK_T);
+        robot.keyRelease(vkControl);
+        robot.keyRelease(VK_T);
 
-        wait.until(textToBePresentInElementLocated(By.tagName("body"),
-                "Computer software"));
+        // Wait up to 5 seconds to the second tab to be opened
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        wait.until(numberOfWindowsToBe(2));
+
+        // Switch to new tab
+        List<String> windowHandles = new ArrayList<>(driver.getWindowHandles());
+        System.err.println(windowHandles);
+        driver.switchTo().window(windowHandles.get(1));
+
+        // Open other URL in second tab
+        driver.get("https://google.com/");
     }
 
 }
